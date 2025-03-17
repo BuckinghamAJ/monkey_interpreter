@@ -144,25 +144,25 @@ func (p *Parser) parseLetStatment() *ast.LetStatement {
 		return nil
 	}
 
-	// TODO: WE'RE Skipping the expressions until
-	// we encounter a semicolon
+	p.nextToken()
 
-	for !p.curTokenIs(token.SEMICOLON) {
+	stmt.Value = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
 	return stmt
 }
 
-func (p *Parser) parseReturnStatement() *ast.ReturnStatment {
-	stmt := &ast.ReturnStatment{Token: p.curToken}
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
 
 	p.nextToken()
 
-	//TODO: We're skipping the expressions until
-	// we encounter a semicolon
+	stmt.ReturnValue = p.parseExpression(LOWEST)
 
-	for !p.curTokenIs(token.SEMICOLON) {
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -319,7 +319,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 func (p *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: p.curToken}
 
-	if !p.peekTokenIs(token.LPAREN) {
+	if !p.expectPeek(token.LPAREN) {
 		return nil
 	}
 
@@ -351,7 +351,6 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	block := &ast.BlockStatement{Token: p.curToken}
-
 	block.Statements = []ast.Statement{}
 
 	p.nextToken()
